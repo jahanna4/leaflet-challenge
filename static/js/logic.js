@@ -1,7 +1,3 @@
-// Note: Choropeth is overriding EarthqakeData on features menu
-
-var choro;
-
 var map = L.map("map", {
     //   used St. Louis, MO as central point
         center: [38.6270, -90.1994],
@@ -17,22 +13,21 @@ var lightlayer = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x
     accessToken: API_KEY
 }).addTo(map);
 
-
 function createFeatures(quakedata) {
-    function onEachFeature(feature, layer) {
-        layer.bindPopup("Date: "+ Date(feature.properties.time) + "<br>Location: " + feature.properties.place + "</br>" + "Magnitude: " + feature.properties.mag);
-    }
 
     var eq = L.geoJSON(quakedata, {
-        onEachFeature: onEachFeature
-    });
+        onEachFeature: function(feature, layer) {
+            layer.bindPopup("Date: "+ Date(feature.properties.time) + "<br>Location: " + feature.properties.place + "</br>" + "Magnitude: " + feature.properties.mag);
+        }
+
+    }).addTo(map);
 
     var base = {
         "Light": lightlayer
     };
 
     var overlay = {
-        "Earthquakes": eq
+        "Earthquakes":eq
     };
 
     L.control.layers(base, overlay, {
@@ -40,24 +35,70 @@ function createFeatures(quakedata) {
     }).addTo(map);
 }
 
-d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson", function(earthquakedata) {
+d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson", createFeatures);
 
-    choro = L.choropleth(earthquakedata, {
-        valueProperty: "mag",
-        scale: ["#e7e1ef", "#dd1c77"],
-        steps: 10,
-        mode: "q",
-        style: {
-            color:"#fff",
-            weight: 1,
-            fillOpacity: 0.8
-        },
 
-        onEachFeature: function(feature, layer) {
-            layer.bindPopup("Date: "+ Date(feature.properties.time) + "<br>Location: " + feature.properties.place + "</br>" + "Magnitude: " + feature.properties.mag);
-        }
 
-    }).addTo(map);
+// I tried this code to create the map and layers, set markers
+// and bind the popups but only the initial map worked.
+// For the markers, I tried L.circle, L.markers, new L.circleMarkers,
+// I also tried to include the radius with the lat & lng coordinates as well as
+// pushing the markers to the map through the for loop but none of this worked.
 
-    createFeatures(earthquakedata);
-});
+// var map = L.map("map", {
+//     //   used St. Louis, MO as central point
+//         center: [38.6270, -90.1994],
+//         zoom: 4
+//     });
+
+// var lightlayer = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+//     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+//     tileSize: 512,
+//     maxZoom: 10,
+//     zoomOffset: -1,
+//     id: "mapbox/streets-v11",
+//     accessToken: API_KEY
+// }).addTo(map);
+
+// function initmap(earthquakedata) {
+
+//     var eq = L.geoJSON(earthquakedata, {
+//         onEachFeature: function(feature, layer) {
+//             layer.bindPopup("Date: "+ Date(feature.properties.time) + "<br>Location: " + feature.properties.place + "</br>" + "Magnitude: " + feature.properties.mag);
+//         }
+//     }).addTo(map);
+
+//     var base = {
+//         "Light": lightlayer
+//     };
+
+//     var overlay = {
+//         "Earthquakes":eq
+//     };
+
+//     L.control.layers(base, overlay, {
+//         collapsed: false
+//     }).addTo(map);
+//     circlemarkers(earthquakedata);
+// }
+
+// function circlemarkers(response) {
+//     var features = response.features;
+//     var circlelocs = [];
+
+//     for (var i=0; i<features.length; i++) {
+//         var feature = features[i];
+//         var lat = feature.geometry.coordinates[0];
+//         var lng = feature.geometry.coordinates[1];
+//         // var rad = feature.geometry.coordinates[2];
+//         var circ = ([lat, lng]);
+//         var cmark = L.circle(circ);
+//         cmark.bindPopup("Date: "+ Date(feature.properties.time) + "<br>Location: " + feature.properties.place + "</br>" + "Magnitude: " + feature.properties.mag);
+//         // cmark.addTo(map);
+//         circlelocs.push(cmark);
+//         console.log(circ);
+//     }
+//     // initmap(L.layerGroup(circlelocs));
+// }
+
+// d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson", initmap);
