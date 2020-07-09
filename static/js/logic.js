@@ -13,13 +13,30 @@ var lightlayer = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x
     accessToken: API_KEY
 }).addTo(map);
 
-function createFeatures(quakedata) {
-
-    var eq = L.geoJSON(quakedata, {
+function createFeatures(quakesdata) {
+    
+    var geo = L.geoJSON(quakesdata, {
+        // var color = [];
         onEachFeature: function(feature, layer) {
             layer.bindPopup("Date: "+ Date(feature.properties.time) + "<br>Location: " + feature.properties.place + "</br>" + "Magnitude: " + feature.properties.mag);
-        }
-
+        },
+    // // Tried to change the color of the markers but the code is not working
+    //     style: function(feature) {
+    //         var colormeasure = feature.properties.mag;
+    //         if (colormeasure <0.5) {
+    //             color = "blue";
+    //         }
+    //         else if (colormeasure <1.0) {
+    //             color = "green";
+    //         }
+    //         else if (color <1.5) {
+    //             color = "yellow";
+    //         }
+    //         else if (color <2.0) {
+    //             color = "orange";
+    //         }
+    //         else {color = "red";}
+    //     }
     }).addTo(map);
 
     var base = {
@@ -27,7 +44,7 @@ function createFeatures(quakedata) {
     };
 
     var overlay = {
-        "Earthquakes":eq
+        "Earthquakes":geo
     };
 
     L.control.layers(base, overlay, {
